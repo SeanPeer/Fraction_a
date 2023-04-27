@@ -72,7 +72,7 @@ namespace ariel
     Fraction &Fraction::operator--() { return a; }
     Fraction Fraction::operator--(int num) { return a; }
 
-        
+
         
    
     

@@ -2,18 +2,71 @@
 #define FRACTION_HPP
 #include <iostream>
 #include <stdbool.h>
+#include <utility>
 
 using namespace std;
 namespace ariel
 {
-
     class Fraction
     {
 
     private:
         int _numerator;
         int _denominator;
-        void builder()
+
+    public:
+        // Default constructor
+        Fraction() { _numerator = 0,
+                     _denominator = 1; }
+
+        // Parameterized constructor
+        Fraction(int numerator, int denominator)
+        {
+            if (denominator == 0)
+            {
+                throw("cannot devide a number woth 0");
+            }
+            if (numerator != denominator)
+            {
+                _numerator = numerator;
+                _denominator = denominator;
+            }
+            else
+            {
+                _numerator = 1;
+                _denominator = 1;
+            }
+        }
+
+        // Copy constructor
+        Fraction(const Fraction &frac)
+        {
+            _numerator = frac._numerator,
+            _denominator = frac._denominator;
+        }
+
+        // Move constructor
+        Fraction(Fraction &&other) noexcept : _numerator(std::exchange(other._numerator, 0)),
+                                              _denominator(std::exchange(other._denominator, 1))
+        {
+        }
+
+        // Move assignment operator
+        Fraction &operator=(Fraction &&other) noexcept
+        {
+            if (this != &other) // check for self-assignment
+            {
+                _numerator = std::exchange(other._numerator, 0);
+                _denominator = std::exchange(other._denominator, 1);
+            }
+            return *this;
+        }
+
+        // Destructor
+        ~Fraction() {}
+
+        // Simplify the fraction
+        void simplify()
         {
             if (_numerator == 0)
             {
@@ -21,31 +74,25 @@ namespace ariel
             }
             else
             {
-                int divisor = 1;
+                int divisor = gcd(_numerator, _denominator);
                 _numerator /= divisor;
                 _denominator /= divisor;
             }
             if (_denominator < 0)
             {
-                _numerator = -_numerator;
-                _denominator = -_denominator;
+                _numerator *= -1;
+                _denominator *= -1;
             }
         }
-
-    public:
-
-        // numerator is mone & denominator is mechane !
-        Fraction(int numerator = 0, int denominator = 1) : _numerator(numerator), _denominator(denominator)
+        //Euclid based gcd algorithm
+        int gcd(int num1, int num2)
         {
-            builder();
+            if (num1 == 0)
+            {
+                return num2;
+            }
+            return gcd(num2 % num1, num1);
         }
-
-
-        Fraction(const Fraction &frac) : _numerator(frac.getNumerator()), _denominator(frac.getDenominator())
-        {
-            builder();
-        }
-        ~Fraction(){}
 
         double getFrac() const
         {
@@ -119,6 +166,16 @@ namespace ariel
         friend bool operator==(const float &num1, const Fraction &frac2);
         friend bool operator==(const Fraction &frac1, const float &num2);
 
+        Fraction &operator=(const Fraction &frac)
+        {
+            if (this != &frac)
+            {
+                _numerator = frac.getNumerator();
+                _denominator = frac.getDenominator();
+            }
+            return *this;
+        }
+
         // Increase / decreace by 1 operators
         Fraction &operator++();
         Fraction operator++(int num);
@@ -129,6 +186,5 @@ namespace ariel
         friend std::ostream &operator<<(std::ostream &output, const Fraction &frac) { return output; }
         friend std::istream &operator>>(std::istream &input, Fraction &frac) { return input; }
     };
-
 }
 #endif
